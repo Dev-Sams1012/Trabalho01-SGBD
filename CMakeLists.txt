@@ -8,4 +8,6 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 
 add_executable(buffer_manager
     src/main.cpp
+    src/buffer_manager.cpp
+    src/page.cpp
 )
