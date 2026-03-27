@@ -23,3 +23,32 @@ std::string BufferManager::readArchive(int key)
     }
     return "";
 }
+
+std::string BufferManager::Fetch(int key) {
+    for(Page &page : buffer){
+        if(page.getPageId() == key){
+            cacheHit++;
+            return page.getContent();
+        }
+    }
+    cacheMiss++;
+    std::string content = readArchive(key);
+    if(content == ""){
+        std:: cout << "Página " << key << "não encontrada no arquivo.";
+        return "";
+    }
+
+    if(buffer.size() == MAX_CAPACITY){
+        Evict();
+    }
+
+    Page newPage(content, key);
+
+    if(rand() % 2 == 1){
+        newPage.setDirty();
+    }
+
+    buffer.push_back(newPage);
+
+    return content;
+}
