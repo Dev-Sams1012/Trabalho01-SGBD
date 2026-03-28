@@ -7,36 +7,31 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <sstream>
 
 #define MAX_CAPACITY 5
 
-enum ReplacementPolicy
-{
-    LRU,
-    FIFO,
-    CLOCK,
-    MRU
-};
-
 class BufferManager
 {
-private:
+protected:
     std::vector<Page> buffer;
-    ReplacementPolicy policy;
     int cacheHit = 0;
     int cacheMiss = 0;
     std::string archive;
 
-    std::string readArchive(int key);
+    virtual void updateBuffer(size_t pageId) {}
+
+    std::string readArchive(size_t key);
 
 public:
-    BufferManager(std::string archivePath, ReplacementPolicy policy);
-    ~BufferManager() = default;
-    std::string Fetch(int key);
-    void Evict();
-    void DisplayCache() const;
-    void DisplayStats() const;
+    BufferManager(std::string archivePath);
+    virtual ~BufferManager() = default;
+
+    std::string fetch(size_t key);
+
+    virtual void evict() = 0;
+
+    void displayCache() const;
+    void displayStats() const;
 };
 
 #endif // BUFFER_MANAGER_HPP
