@@ -1,7 +1,8 @@
 #include "page.hpp"
 
-Page::Page(std::string cont, int id) : conteudo(cont), pageId(id) {}
+Page::Page(std::string cont, size_t id) : conteudo(cont), pageId(id) {}
 
-void Page::setDirty() {
+void Page::setDirty()
+{
     dirty = true;
 }

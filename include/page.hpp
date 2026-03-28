@@ -7,15 +7,15 @@ class Page
 {
 private:
     std::string conteudo;
-    int pageId;
+    size_t pageId;
     bool dirty = false;
 
 public:
-    Page(std::string cont, int id);
+    Page(std::string cont, size_t id);
     ~Page() = default;
 
     std::string getContent() const { return conteudo; }
-    int getPageId() const { return pageId; }
+    size_t getPageId() const { return pageId; }
     bool isDirty() const { return dirty; }
     void setDirty();
 };
