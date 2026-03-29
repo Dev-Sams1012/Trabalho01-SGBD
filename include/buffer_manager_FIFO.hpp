@@ -9,6 +9,7 @@ public:
     BufferManagerFIFO(std::string archivePath);
     
     void evict() override;
+    std::string getNome() const override { return "FIFO"; }
 };
 
 #endif // BUFFER_MANAGER_FIFO_HPP

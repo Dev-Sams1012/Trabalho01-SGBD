@@ -12,6 +12,7 @@ public:
     BufferManagerMRU(std::string archivePath);
 
     void evict() override;
+    std::string getNome() const override { return "MRU"; }
 };
 
 #endif // BUFFER_MANAGER_MRU_HPP

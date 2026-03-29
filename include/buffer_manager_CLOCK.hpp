@@ -15,6 +15,7 @@ public:
     BufferManagerCLOCK(std::string archivePath);
 
     void evict() override;
+    std::string getNome() const override { return "CLOCK"; }
 };
 
 #endif // BUFFER_MANAGER_CLOCK_HPP

@@ -32,6 +32,7 @@ public:
 
     void displayCache() const;
     void displayStats() const;
+    virtual std::string getNome() const = 0;
 };
 
 #endif // BUFFER_MANAGER_HPP

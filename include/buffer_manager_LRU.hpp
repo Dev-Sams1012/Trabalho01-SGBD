@@ -12,6 +12,7 @@ public:
     BufferManagerLRU(std::string archivePath);
 
     void evict() override;
+    std::string getNome() const override { return "LRU"; }
 };
 
 #endif // BUFFER_MANAGER_LRU_HPP
