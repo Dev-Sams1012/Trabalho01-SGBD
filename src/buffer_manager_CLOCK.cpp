@@ -4,6 +4,11 @@ BufferManagerCLOCK::BufferManagerCLOCK(std::string archivePath) : BufferManager(
 
 void BufferManagerCLOCK::updateBuffer(size_t pageId)
 {
+    while (refBits.size() < buffer.size())
+    {
+        refBits.push_back(false);
+    }
+
     for (size_t i = 0; i < buffer.size(); i++)
     {
         if (buffer[i].getPageId() == pageId)
