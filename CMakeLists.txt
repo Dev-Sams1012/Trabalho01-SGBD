@@ -13,4 +13,5 @@ add_executable(buffer_manager
     src/buffer_manager_FIFO.cpp
     src/buffer_manager_LRU.cpp
     src/buffer_manager_MRU.cpp
+    src/buffer_manager_CLOCK.cpp
 )
