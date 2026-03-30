@@ -19,15 +19,15 @@ void BufferManagerLRU::updateBuffer(size_t pageId)
 
     if (targetIndex != -1)
     {
-        Page p = buffer[targetIndex];
-        buffer.erase(buffer.begin() + targetIndex);
-        buffer.push_back(p);
+        Page p = buffer[targetIndex]; // copia a pagina do buffer para atualizar a sua posicao
+        buffer.erase(buffer.begin() + targetIndex); // remove a pagina do buffer
+        buffer.push_back(p); // adiciona a pagina no final do buffer, indicando que ela é a mais recentemente usada
     }
 }
 
 void BufferManagerLRU::evict()
 {
-    Page &pageToEvict = buffer.front();
+    Page &pageToEvict = buffer.front(); // a pagina menos recentemente usada é a primeira do vetor
 
     std::cout << "EVICT: " << pageToEvict.getPageId() << " | " << pageToEvict.getContent();
 
@@ -38,5 +38,5 @@ void BufferManagerLRU::evict()
 
     std::cout << std::endl;
 
-    buffer.erase(buffer.begin());
+    buffer.erase(buffer.begin()); // remove a primeira página do vetor, que é a menos recentemente usada
 }

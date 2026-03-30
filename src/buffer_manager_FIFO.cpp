@@ -4,7 +4,7 @@ BufferManagerFIFO::BufferManagerFIFO(std::string archivePath) : BufferManager(ar
 
 void BufferManagerFIFO::evict()
 {
-    Page &pageToEvict = buffer.front();
+    Page &pageToEvict = buffer.front(); // a pagina mais antiga é a primeira do vetor
 
     std::cout << "EVICT: " << pageToEvict.getPageId() << " | " << pageToEvict.getContent();
 
@@ -15,5 +15,5 @@ void BufferManagerFIFO::evict()
 
     std::cout << std::endl;
 
-    buffer.erase(buffer.begin());
+    buffer.erase(buffer.begin()); // remove a primeira página do vetor, que é a mais antiga
 }
