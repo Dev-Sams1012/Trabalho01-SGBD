@@ -31,8 +31,9 @@ std::string BufferManager::fetch(size_t key)
         if (page.getPageId() == key)
         {
             cacheHit++;
+            std::string content = page.getContent();
             updateBuffer(key);
-            return page.getContent();
+            return content;
         }
     }
     cacheMiss++;
@@ -64,8 +65,6 @@ std::string BufferManager::fetch(size_t key)
 
 void BufferManager::displayCache() const
 {
-    std::cout << "Cache do Buffer: " << std::endl;
-
     for (const Page &page : buffer)
     {
         std::cout << "Page ID: " << page.getPageId() << std::endl;
