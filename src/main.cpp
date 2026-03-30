@@ -1,17 +1,31 @@
-#include <iostream>
-#include <vector>
-
-#define RED "\033[31m"
-#define GREEN "\033[32m"
-#define YELLOW "\033[33m"
-#define RESET "\033[0m"
-
 #include "buffer_manager_FIFO.hpp"
 #include "buffer_manager_LRU.hpp"
 #include "buffer_manager_MRU.hpp"
 #include "buffer_manager_CLOCK.hpp"
 
-void limparTela()
+#include <iostream>
+#include <vector>
+#include <string>
+#include <limits>
+#include <ctime>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+#define RESET "\033[0m"
+#define BOLD "\033[1m"
+#define DIM "\033[2m"
+#define RED "\033[31m"
+#define GREEN "\033[32m"
+#define YELLOW "\033[33m"
+#define MAGENTA "\033[35m"
+#define CYAN "\033[36m"
+
+#define MAX_DATA 30
+#define DATA_PATH "../data/bancodedados.csv"
+
+void cleanScreen()
 {
 #ifdef _WIN32
     system("cls");
@@ -20,155 +34,119 @@ void limparTela()
 #endif
 }
 
-void titulo()
+void divider(char c = '-')
 {
-    std::cout << YELLOW;
-    std::cout << "========================================\n";
-    std::cout << "   GERENCIADOR DE BUFFER - SGBD\n";
-    std::cout << "========================================\n";
-    std::cout << RESET;
+    std::cout << DIM;
+    for (int i = 0; i < 50; i++)
+        std::cout << c;
+    std::cout << RESET << "\n";
+}
+
+void title()
+{
+    std::cout << BOLD << CYAN << "  TRABALHO 01 - GERENCIADOR DE BUFFER - SGBD" << RESET << "\n\n";
+}
+
+void runTest(BufferManager &manager, const std::vector<size_t> &sequence)
+{
+    std::cout << "\n\n";
+    divider('=');
+    std::cout << BOLD << MAGENTA << "  Politica: " << manager.getNome() << RESET << "\n";
+    divider('=');
+
+    for (size_t pageId : sequence)
+    {
+        std::cout << "\n";
+        std::cout << BOLD << YELLOW << "  >> Fetch(" << pageId << ")" << RESET << "\n";
+
+        std::string content = manager.fetch(pageId);
+
+        std::cout << DIM << "    -> " << RESET << content << "\n";
+    }
+
+    std::cout << "\n";
+    divider();
+    std::cout << BOLD << CYAN << "  Estado final do buffer\n" << RESET;
+    divider();
+    manager.displayCache();
+
+    std::cout << "\n";
+    divider();
+    std::cout << BOLD << GREEN << "  Estatisticas\n" << RESET;
+    divider();
+    manager.displayStats();
 }
 
 int main()
 {
-    std::string arquivo = "bancodedados.csv";
+    #ifdef _WIN32
+        SetConsoleOutputCP(CP_UTF8);
+    #endif
 
-    BufferManager *fifo = new BufferManagerFIFO(arquivo);
-    BufferManager *lru = new BufferManagerLRU(arquivo);
-    BufferManager *mru = new BufferManagerMRU(arquivo);
-    BufferManager *clock = new BufferManagerCLOCK(arquivo);
+    srand((time(nullptr)));
+
+    cleanScreen();
+    title();
 
     std::vector<size_t> keys;
 
-    limparTela();
-    titulo();
-
-    std::cout << "Digite as chaves (pageId) (-1 para parar):\n";
+    std::cout << BOLD << "  Sequencia de acesso\n" << RESET;
+    divider();
+    std::cout << DIM << "  Digite pageIds de 1 a " << MAX_DATA << "  |  0 para iniciar\n\n" << RESET;
 
     while (true)
     {
-        int key;
-        std::cin >> key;
+        std::cout << CYAN << "  >> " << RESET;
 
-        if (key == -1)
+        size_t key;
+
+        if (!(std::cin >> key))
+        {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << RED << "  Entrada invalida. Digite um numero.\n" << RESET;
+            continue;
+        }
+
+        if (key == 0)
             break;
+
+        if (key < 1 || key > MAX_DATA)
+        {
+            std::cout << RED << "  Fora do intervalo! Use valores entre 1 e " << MAX_DATA << ".\n" << RESET;
+            continue;
+        }
 
         keys.push_back(key);
+        std::cout << GREEN << "  + Pagina " << key << " adicionada" << DIM << "  [total: " << keys.size() << "]" << RESET << "\n";
     }
 
-    int option = -1;
-
-    while (option != 0)
+    if (keys.empty())
     {
-        limparTela();
-        titulo();
-
-        std::cout << GREEN << "Operacoes disponiveis:\n"
-                  << RESET;
-        std::cout << "1 - Executar FETCH nas chaves\n";
-        std::cout << "2 - Mostrar CACHE de todas politicas\n";
-        std::cout << "3 - Mostrar ESTATISTICAS\n";
-        std::cout << "0 - Sair\n";
-
-        std::cin >> option;
-
-        switch (option)
-        {
-        case 1:
-        {
-            std::cout << YELLOW << "\nExecutando FETCH...\n"
-                      << RESET;
-            for (size_t key : keys)
-            {
-                std::cout << "\n=============================\n";
-                std::cout << "KEY: " << key << "\n";
-
-                std::cout << GREEN << "\n[FIFO]\n"
-                          << RESET;
-                fifo->fetch(key);
-
-                std::cout << GREEN << "\n[LRU]\n"
-                          << RESET;
-                lru->fetch(key);
-
-                std::cout << GREEN << "\n[MRU]\n"
-                          << RESET;
-                mru->fetch(key);
-
-                std::cout << GREEN << "\n[CLOCK]\n"
-                          << RESET;
-                clock->fetch(key);
-            }
-            std::cout << "\nFETCH concluído. Pressione Enter para continuar...";
-            std::cin.ignore();
-            std::cin.get();
-            break;
-        }
-        case 2:
-        {
-            std::cout << GREEN << "\n--- CACHE FIFO ---\n"
-                      << RESET;
-            fifo->displayCache();
-
-            std::cout << GREEN << "\n--- CACHE LRU ---\n"
-                      << RESET;
-            lru->displayCache();
-
-            std::cout << GREEN << "\n--- CACHE MRU ---\n"
-                      << RESET;
-            mru->displayCache();
-
-            std::cout << GREEN << "\n--- CACHE CLOCK ---\n"
-                      << RESET;
-            clock->displayCache();
-
-            std::cout << "\nPressione Enter para continuar...";
-            std::cin.ignore();
-            std::cin.get();
-            break;
-        }
-        case 3:
-        {
-            std::cout << GREEN << "\n--- STATS FIFO ---\n"
-                      << RESET;
-            fifo->displayStats();
-
-            std::cout << GREEN << "\n--- STATS LRU ---\n"
-                      << RESET;
-            lru->displayStats();
-
-            std::cout << GREEN << "\n--- STATS MRU ---\n"
-                      << RESET;
-            mru->displayStats();
-
-            std::cout << GREEN << "\n--- STATS CLOCK ---\n"
-                      << RESET;
-            clock->displayStats();
-            std::cout << "\nPressione Enter para continuar...";
-            std::cin.ignore();
-            std::cin.get();
-            break;
-        }
-        case 0:
-        {
-            std::cout << YELLOW << "\nEncerrando o programa...\n"
-                      << RESET;
-            break;
-        }
-        default:
-        {
-            std::cout << RED << "\nOpção inválida! Tente novamente.\n"
-                      << RESET;
-            std::cin.ignore();
-            std::cin.get();
-        }
-        }
+        std::cout << RED << "\n  Nenhuma chave informada. Encerrando.\n\n" << RESET;
+        return 0;
     }
+
+    BufferManager *fifo = new BufferManagerFIFO(DATA_PATH);
+    BufferManager *lru = new BufferManagerLRU(DATA_PATH);
+    BufferManager *mru = new BufferManagerMRU(DATA_PATH);
+    BufferManager *clock = new BufferManagerCLOCK(DATA_PATH);
+
+    runTest(*lru, keys);
+    runTest(*fifo, keys);
+    runTest(*clock, keys);
+    runTest(*mru, keys);
+
+    std::cout << "\n\n";
+    divider('=');
+    std::cout << DIM << "  Fim da execucao.\n" << RESET;
+    divider('=');
+    std::cout << "\n";
 
     delete fifo;
     delete lru;
     delete mru;
     delete clock;
-    
+
     return 0;
 }
